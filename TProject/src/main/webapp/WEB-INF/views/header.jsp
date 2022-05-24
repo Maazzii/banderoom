@@ -66,7 +66,7 @@ header {
 	align-items: center;
 }
 
-.sm-close-button:hover {
+#sm-close-button:hover {
 	cursor: pointer;
 }
 
@@ -262,8 +262,8 @@ header {
 			<img src="<%=request.getContextPath() %>/images/sidemenu-open-button.png" class="sm-open-button">
 	</div>
 	<div id="sidemenu">
-		<div id="sm-close-button">
-			<img src="<%=request.getContextPath() %>/images/sidemenu-close-button.png" class="sm-close-button" onclick="closeSm()">
+		<div id="sm-close-button" onclick="closeSm()">
+			<img src="<%=request.getContextPath() %>/images/sidemenu-close-button.png" class="sm-close-button">
 		</div>
 		<div id="sm-profile">
 			<c:if test="${login == null && hlogin == null}">
@@ -290,7 +290,7 @@ header {
 					</div>
 				</div>
 				<div id="sm-profile-buttons">
-					<button class="normal-button" onclick = "">내정보</button>
+					<button class="normal-button" onclick = "location.href='/member/ginfo.do'">내 정보</button>
 					<button class="normal-button" onclick = "location.href='/member/myMessage.do'">쪽지함</button>
 					<button class="normal-button" onclick = "location.href='/member/logout.do'">로그아웃</button>
 				</div>
@@ -310,7 +310,7 @@ header {
 					</div>
 				</div>
 				<div id="sm-profile-buttons">
-					<button class="normal-button" onclick = "">내정보</button>
+					<button class="normal-button" onclick = "location.href='/member/hinfo.do'">내 정보</button>
 					<button class="normal-button" onclick = "">쪽지함</button>
 					<button class="normal-button" onclick = "location.href='/member/logout.do'">로그아웃</button>
 				</div>
@@ -319,7 +319,7 @@ header {
 		<c:if test="${sessionScope.login != null}">
 		<div id="sm-buttons">
 			<div class="sm-button-wrap" onclick="location.href='/space/list.do'">
-				연습실 대여
+				공간 대여
 			</div>
 			<div class="sm-button-wrap" onclick="location.href='/teams/main.do'">
 				팀원 모집

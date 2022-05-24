@@ -20,12 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.project.service.MemberService;
-import com.project.vo.EmailRegVO;
-import com.project.vo.GeneralMembersVO;
-import com.project.vo.HostMembersVO;
-import com.project.vo.MessagesVO;
-import com.project.vo.TelRegVO;
+import com.project.service.*;
+import com.project.vo.*;
 
 @RequestMapping(value = "/member")
 @Controller
@@ -33,6 +29,8 @@ public class MemberController {
 	
 	@Autowired
 	private MemberService memberService;
+	@Autowired
+	private BoardService boardService;
 	
 	@RequestMapping(value = "/glogin.do", method = RequestMethod.GET)
 	public String glogin() {
@@ -41,11 +39,19 @@ public class MemberController {
 	
 	
 	@RequestMapping(value = "/gjoin.do", method = RequestMethod.GET)
-	public String gjoin(String isKakao, HttpServletRequest request) {
+	public String gjoin(Model model, String isKakao, HttpServletRequest request) {
 		
 		if (isKakao.equals("N")) {
 			request.getSession().invalidate();
 		}
+		
+		Map<String, ServiceInfoVO> info = new HashMap<String, ServiceInfoVO>();
+		
+		for (int i = 1; i <= 2; i++) {
+			info.put(String.valueOf(i), boardService.selectOneServiceInfo(i));
+		}
+		
+		model.addAttribute("info", info);
 		
 		return "member/gjoin";
 	}
@@ -207,7 +213,16 @@ public class MemberController {
 	}
 	
 	@RequestMapping(value = "/hjoin.do", method = RequestMethod.GET)
-	public String hjoin() {
+	public String hjoin(Model model) {
+		
+		Map<String, ServiceInfoVO> info = new HashMap<String, ServiceInfoVO>();
+		
+		for (int i = 1; i <= 2; i++) {
+			info.put(String.valueOf(i), boardService.selectOneServiceInfo(i));
+		}
+		
+		model.addAttribute("info", info);
+		
 		return "member/hjoin";
 	}
 	
@@ -272,6 +287,287 @@ public class MemberController {
 				
 			return "alert";
 		
+	}
+	
+	@RequestMapping(value = "ginfo.do", method = RequestMethod.GET)
+	public String ginfo(HttpServletRequest request) {
+		
+		if (request.getSession().getAttribute("login") == null) {
+			return "member/glogin";
+		}
+		
+		return "member/ginfo";
+	}
+	
+	@RequestMapping(value = "profileupdate.do")
+	@ResponseBody
+	public String profileUpdate(HttpServletRequest request, @RequestParam("profilePicture") MultipartFile file) throws Exception {
 
+		if (request.getSession().getAttribute("login") == null && request.getSession().getAttribute("hlogin") == null) {
+			return "1"; // 로그인 안 됨
+		}
+		
+		String src = "/images/profile_default.png";
+		
+		String path = request.getSession().getServletContext().getRealPath("/resources/upload");
+		String fileName = file.getOriginalFilename();
+		
+		String extension = fileName.substring(fileName.lastIndexOf("."), fileName.length());
+
+		UUID uuid = UUID.randomUUID();
+		String newFileName = uuid.toString() + extension;
+
+		File dir = new File(path);
+		if (!dir.exists()) {	// 해당 디렉토리가 존재하지 않는 경우
+			dir.mkdirs();				// 경로의 폴더가 없는 경우 상위 폴더에서부터 전부 생성
+		}
+		
+		File target = new File(path, newFileName);
+		
+		file.transferTo(target);
+		
+		makeThumbnail(target.getAbsolutePath(), uuid.toString(), extension.substring(1), path);
+		
+		if (request.getSession().getAttribute("login") != null) {
+
+			GeneralMembersVO login = (GeneralMembersVO) request.getSession().getAttribute("login");
+			
+			src = "/upload/THUMB_" + newFileName;
+			
+			login.setProfileSrc(src);
+			memberService.infoUpdate(login);
+			
+		} else if (request.getSession().getAttribute("hlogin") != null) {
+			
+			HostMembersVO login = (HostMembersVO) request.getSession().getAttribute("hlogin");
+
+			src = "/upload/THUMB_" + newFileName;
+			
+			login.setProfileSrc(src);
+			memberService.infoUpdate(login);
+		}
+
+		return src;
+	}
+	
+	@RequestMapping(value = "profilereset.do")
+	@ResponseBody
+	public String profileReset(HttpServletRequest request) {
+
+		String src = "/images/profile_default.png";
+		
+		if (request.getSession().getAttribute("login") == null && request.getSession().getAttribute("hlogin") == null) {
+			return "1"; // 로그인 안 됨
+		}
+
+		if (request.getSession().getAttribute("login") != null) {
+			GeneralMembersVO login = (GeneralMembersVO) request.getSession().getAttribute("login");
+
+			login.setProfileSrc(src);
+			memberService.infoUpdate(login);
+		} else if (request.getSession().getAttribute("hlogin") != null) {
+			HostMembersVO login = (HostMembersVO) request.getSession().getAttribute("hlogin");
+			
+			login.setProfileSrc(src);
+			memberService.infoUpdate(login);
+		}
+		
+		return src;
+	}
+	
+	@RequestMapping(value = "updatenickname.do")
+	@ResponseBody
+	public String updateNickname(HttpServletRequest request, String nickname) {
+
+		if (request.getSession().getAttribute("login") == null && request.getSession().getAttribute("hlogin") == null) {
+			return "1"; // 로그인 안 됨
+		}
+		
+		if (request.getSession().getAttribute("login") != null) {
+			GeneralMembersVO login = (GeneralMembersVO) request.getSession().getAttribute("login");
+
+			if (memberService.checkNickname(nickname, "general") == 1) {
+				return "2"; // 이미 존재하는 닉네임
+			}
+			
+			login.setNickname(nickname);
+			
+			if (memberService.infoUpdate(login) > 0) {
+				return "0"; // 정상 업데이트
+			} else {
+				return "3"; // 업데이트 실패
+			}
+		} else if (request.getSession().getAttribute("hlogin") != null) {
+			HostMembersVO login = (HostMembersVO) request.getSession().getAttribute("hlogin");
+
+			if (memberService.checkNickname(nickname, "host") == 1) {
+				return "2"; // 이미 존재하는 닉네임
+			}
+			
+			login.setNickname(nickname);
+			
+			if (memberService.infoUpdate(login) > 0) {
+				return "0"; // 정상 업데이트
+			} else {
+				return "3"; // 업데이트 실패
+			}
+		}	
+		
+		return "3";
+	}
+	
+	@RequestMapping(value = "changepassword.do", method = RequestMethod.GET)
+	public String changePassword(HttpServletRequest request) {
+		
+		
+		return "member/changepassword";
+	}
+	
+	@RequestMapping(value = "changepassword.do", method = RequestMethod.POST)
+	@ResponseBody
+	public String changePassword(HttpServletRequest request, String currPw, String pw1) {
+
+		if (request.getSession().getAttribute("login") == null && request.getSession().getAttribute("hlogin") == null) {
+			return "1"; // 로그인 안 됨
+		}
+
+		if (request.getSession().getAttribute("login") != null) {
+			GeneralMembersVO login = (GeneralMembersVO) request.getSession().getAttribute("login");
+			
+			if (!currPw.equals(memberService.selectCurrPw("general", login.getmIdx()))) {
+				return "2"; // 현재 비밀번호 틀림
+			}
+			
+			login.setPassword(pw1);
+
+			if (memberService.infoUpdate(login) > 0) {
+				return "0"; // 정상 업데이트
+			} else {
+				return "3"; // 업데이트 실패
+			}
+		} else if (request.getSession().getAttribute("hlogin") != null) {
+			HostMembersVO login = (HostMembersVO) request.getSession().getAttribute("hlogin");
+			
+			if (!currPw.equals(memberService.selectCurrPw("host", login.getmIdx()))) {
+				return "2"; // 현재 비밀번호 틀림
+			}
+			
+			login.setPassword(pw1);
+
+			if (memberService.infoUpdate(login) > 0) {
+				return "0"; // 정상 업데이트
+			} else {
+				return "3"; // 업데이트 실패
+			}
+		}
+		
+		return "3";
+		
+	}
+	
+	@RequestMapping(value = "ginfo.do", method = RequestMethod.POST)
+	@ResponseBody
+	public String ginfo(GeneralMembersVO vo, HttpServletRequest request) {
+
+		if (request.getSession().getAttribute("login") == null) {
+			return "1"; // 로그인 안 됨
+		}
+
+		GeneralMembersVO login = (GeneralMembersVO) request.getSession().getAttribute("login");
+		
+		vo.setmIdx(login.getmIdx());
+
+		if (memberService.infoUpdate(vo) > 0) {
+			return "0"; // 정상 업데이트
+		} else {
+			return "2"; // 업데이트 실패
+		}
+		
+	}
+	
+	@RequestMapping(value = "hinfo.do", method = RequestMethod.GET)
+	public String hinfo(HttpServletRequest request) {
+
+		if (request.getSession().getAttribute("hlogin") == null) {
+			return "member/hlogin";
+		}
+		
+		return "member/hinfo";
+	}
+
+	@RequestMapping(value = "hinfo.do", method = RequestMethod.POST)
+	@ResponseBody
+	public String hinfo(HostMembersVO vo, HttpServletRequest request) {
+
+		if (request.getSession().getAttribute("hlogin") == null) {
+			return "1"; // 로그인 안 됨
+		}
+
+		HostMembersVO login = (HostMembersVO) request.getSession().getAttribute("hlogin");
+		
+		vo.setmIdx(login.getmIdx());
+
+		if (memberService.infoUpdate(vo) > 0) {
+			return "0"; // 정상 업데이트
+		} else {
+			return "2"; // 업데이트 실패
+		}
+		
+	}
+	
+	@RequestMapping(value = "gfindpw.do", method = RequestMethod.GET)
+	public String gfindPw(Model model) {
+		
+		model.addAttribute("memberType", "general");
+		
+		return "member/gfindpw";
+	}
+	
+	@RequestMapping(value = "hfindpw.do", method = RequestMethod.GET)
+	public String hfindPw(Model model) {
+		
+		model.addAttribute("memberType", "host");
+		
+		return "member/hfindpw";
+	}
+	
+	@RequestMapping(value = "sendemailforfindingpw.do", method = RequestMethod.POST)
+	@ResponseBody
+	public int sendEmailForFindingPw(String email, String memberType) {
+		
+		return memberService.sendEmailForFindingPw(email, memberType);
+	}
+	
+	@RequestMapping(value = "findpw.do", method = RequestMethod.POST)
+	public String findPw(HttpServletRequest request, Model model, EmailRegVO vo) {
+
+		int emailCheck = memberService.checkEmail(vo);
+		
+		if (emailCheck != 0) { // 인증 내용이 올바르지 않을 경우
+			return "member/findpwerror";
+		}
+
+		model.addAttribute("emailRegVO", vo);
+		
+		return "member/gfindpwchange";
+	}
+	
+	@RequestMapping(value = "gfindpwchange.do", method = RequestMethod.POST)
+	@ResponseBody
+	public String gFindPwChange(EmailRegVO vo, String pw1) {
+
+		int emailCheck = memberService.checkEmail(vo);
+		
+		if (emailCheck != 0) { // 인증 내용이 올바르지 않을 경우
+			return "1";
+		}
+		
+		GeneralMembersVO gMember = new GeneralMembersVO();
+		gMember.setEmail(vo.getEmail());
+		
+		gMember = memberService.selectGmemberByEmail(gMember);
+		
+		return "0";
+		
 	}
 }

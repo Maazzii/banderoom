@@ -17,6 +17,7 @@ import com.project.vo.TelRegVO;
 public interface MemberService {
 
 	int sendEmail(String email, String memberType);
+	int sendEmailForFindingPw(String email, String memberType);
 	int checkEmail(EmailRegVO vo);
 	int checkNickname(String nickname, String memberType);
 	int sendTelKey(TelRegVO vo);
@@ -28,8 +29,13 @@ public interface MemberService {
 	int hjoin(HostMembersVO vo);
 	HostMembersVO hLogin(HostMembersVO vo);
 	GeneralMembersVO oneMemberInfo(GeneralMembersVO vo);
+	HostMembersVO oneMemberInfo(HostMembersVO vo);
 	int sendMessage(Map<String,Object> map);
 	HostMembersVO getHostMember(HostMembersVO vo);
 	int setPoint(PointsVO vo);
 	List<MessagesVO> MessagesList(HttpServletRequest request,Map<String, Object> map);
+	int infoUpdate(GeneralMembersVO vo);
+	int infoUpdate(HostMembersVO vo);
+	String selectCurrPw(String memberType, int mIdx);
+	GeneralMembersVO selectGmemberByEmail(GeneralMembersVO vo);
 }

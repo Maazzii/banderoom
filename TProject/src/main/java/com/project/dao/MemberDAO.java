@@ -94,7 +94,11 @@ public class MemberDAO {
 	}
 	
 	public GeneralMembersVO gLogin(GeneralMembersVO vo) {
-		return sqlSession.selectOne("com.project.mapper.memberMapper.gLogin", vo);
+		vo = sqlSession.selectOne("com.project.mapper.memberMapper.gLogin", vo);
+		if (vo != null) {
+			vo.setPassword(null);
+		}
+		return vo;
 	}
 	
 	public int isBrnExist(String brn) {
@@ -111,6 +115,10 @@ public class MemberDAO {
 	
 	public GeneralMembersVO oneMemberInfo(GeneralMembersVO vo) {
 		return sqlSession.selectOne("com.project.mapper.memberMapper.oneMemberInfo",vo);
+	}
+	
+	public HostMembersVO oneMemberInfo(HostMembersVO vo) {
+		return sqlSession.selectOne("com.project.mapper.memberMapper.hostMemberInfo",vo);
 	}
 	
 	public int sendMessage(Map<String,Object> map) {
@@ -137,5 +145,21 @@ public class MemberDAO {
 	public int receiverListCount(int receiver) {
 		
 		return sqlSession.selectOne("com.project.mapper.memberMapper.listCount",receiver);
+	}
+	
+	public int infoUpdate(GeneralMembersVO vo) {
+		return sqlSession.update("com.project.mapper.memberMapper.ginfoUpdate", vo);
+	}
+	
+	public int infoUpdate(HostMembersVO vo) {
+		return sqlSession.update("com.project.mapper.memberMapper.hinfoUpdate", vo);
+	}
+	
+	public String selectCurrPw(Map<String, Object> params) {
+		return sqlSession.selectOne("com.project.mapper.memberMapper.selectCurrPw", params);
+	}
+	
+	public GeneralMembersVO selectGmemberByEmail(GeneralMembersVO vo) {
+		return sqlSession.selectOne("com.project.mapper.memberMapper.selectGmemberByEmail", vo);
 	}
 }
