@@ -357,4 +357,18 @@
 	<select id="selectGmemberByEmail" parameterType="generalMembersVO" resultType="generalMembersVO">
 		select * from general_members where email = #{email}
 	</select>
+	
+	<!-- report -->
+	<insert id="sendReport" parameterType="hashMap">
+		INSERT INTO reports(
+			 reporter
+			,target
+			,content
+		)VALUES(
+			 #{reporter}
+			,#{target}
+			,#{content}
+		)
+	</insert>
+	<!-- report -->
 </mapper>

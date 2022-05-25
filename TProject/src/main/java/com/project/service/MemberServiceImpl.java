@@ -354,5 +354,10 @@ public class MemberServiceImpl implements MemberService {
 	public GeneralMembersVO selectGmemberByEmail(GeneralMembersVO vo) {
 		return dao.selectGmemberByEmail(vo);
 	}
+
+	@Override
+	public int sendReport(Map<String, Object> map) {
+		return dao.sendReport(map);
+	}
 	
 }

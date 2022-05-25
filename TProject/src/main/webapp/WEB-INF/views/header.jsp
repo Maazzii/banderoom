@@ -553,8 +553,9 @@ header {
 	
 	
 	function reportPopup(){
-		var option = "width = 500, height = 400, top = 100, left = 200, location = no"
-		var mIdx = document.querySelector("#sm-profile-mIdx").value; //받는사람의 midx
+		var option = "width = 500, height = 400, top = 100, left = 200, location = no";
+		var mIdx = document.querySelector("#sm-profile-mIdx").value; //받는사람(target)의 midx
+		
 		window.open("/reportPopup.do?mIdx="+mIdx, "신고하기", option);
 	}
 </script>

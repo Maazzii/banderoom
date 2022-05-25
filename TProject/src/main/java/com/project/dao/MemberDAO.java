@@ -162,4 +162,8 @@ public class MemberDAO {
 	public GeneralMembersVO selectGmemberByEmail(GeneralMembersVO vo) {
 		return sqlSession.selectOne("com.project.mapper.memberMapper.selectGmemberByEmail", vo);
 	}
+	
+	public int sendReport(Map<String, Object> map) {
+		return sqlSession.insert("com.project.mapper.memberMapper.sendReport", map);
+	}
 }

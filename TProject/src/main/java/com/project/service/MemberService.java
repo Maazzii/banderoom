@@ -38,4 +38,5 @@ public interface MemberService {
 	int infoUpdate(HostMembersVO vo);
 	String selectCurrPw(String memberType, int mIdx);
 	GeneralMembersVO selectGmemberByEmail(GeneralMembersVO vo);
+	int sendReport(Map<String, Object> map);
 }
