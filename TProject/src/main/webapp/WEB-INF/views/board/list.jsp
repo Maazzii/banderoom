@@ -20,6 +20,7 @@
 		margin: 40px auto;
 	}
 	.freeBoard-list-table{
+		margin-top: 20px;
 		width:100%;
 	}
 	table{
@@ -27,22 +28,20 @@
 	}
 	tr{
 		text-align:center;
-		background-color:white;
-	}
-	tr:not(tr:first-child) {
 		border-top: 1px solid #D8D8D8;
+		background-color:white;
 	}
 	
 	th{
 		text-align:center;
-		background-color: white;
+		background-color: #FFDAC4;
 		color: black;
-		font-size: 12px;
-		height: 30px;
+		height:40px;
+		border-top: 1px solid black;
 	}
 	td{
-		font-size:14px;
-		height:50px;
+		height:35px;
+		font-size:13px;
 	}
 	#register{
 		position:relative;
@@ -59,12 +58,12 @@
 		align-items: center;
 		
 	}
-	a img{
+	img{
 		margin-left: 5px;
 		margin-bottom: 2px;
 	}
 	.bestArticles-tr{
-		background-color:#f2f2f2;
+		background-color:#F2F2F2;
 	}
 	#page-nav {
 		width: 100%;
@@ -82,7 +81,6 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		background: white;
 	}
 	.page-nav-button:not(.current-page) {
 		cursor: pointer;
@@ -110,9 +108,6 @@
 		box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
 		border: none;
 	}
-	span.profile:hover {
-		cursor: pointer;
-	}
 </style>
 </head>
 <body>
@@ -137,10 +132,10 @@
         			<button class="normal-button accent-button">검색</button>
      		 </form>
 		</div>
-		<div class="freeBoard-list inner-box">
+		<div class="freeBoard-list">
 			<table class="freeBoard-list-table">
 				<tr>
-					<th width="10%">글번호</th>
+					<th width="10%"></th>
 					<th width="40%">제목</th>
 					<th width="20%">작성자</th>
 					<th width="14%">작성일</th>
@@ -157,7 +152,7 @@
 									<span style="color:red;">&nbsp;[${cSize.get(bestArticles.get(i).aIdx)}]</span>
 								</c:if>
 							</td>
-							<td class="bestArticles"><span class="bestArticles profile" onclick="profileOpen(${bestArticles.get(i).mIdx})">${bestArticles.get(i).mNickname }</span></td>
+							<td class="bestArticles" onclick="profileOpen(${bestArticles.get(i).mIdx})">${bestArticles.get(i).mNickname }</td>
 							<td class="bestArticles">
 								<fmt:formatDate value="${bestArticles.get(i).regDate }" pattern="yyyy-MM-dd"/>
 							</td>
@@ -176,7 +171,7 @@
 									<span style="color:red;">&nbsp;[${cSize.get(list.get(i).aIdx)}]</span>
 								</c:if>
 								</td>
-							<td><span class="profile" onclick="profileOpen(${list.get(i).mIdx})">${list.get(i).mNickname }</span></td>
+							<td onclick="profileOpen(${list.get(i).mIdx})">${list.get(i).mNickname }</td>
 							<td>
 								<fmt:formatDate value="${list.get(i).regDate }" pattern="yyyy-MM-dd"/>
 							</td>
@@ -184,45 +179,6 @@
 							<td>${likeList.get(list.get(i).aIdx)}</td>
 						</tr>
 					</c:forEach>
-					
-						<tr>
-							<td colspan="6">
-								<div id="page-nav"><!-- 페이징 -->
-									<c:if test="${pu.getLastPage() < 6}">
-										<c:forEach var="i" begin="${pu.getStartPage()}" end="${pu.getLastPage()}">
-											<c:choose>
-												<c:when test="${i == param.page}">
-													<b class="page-nav-button current-page">${i}</b>
-												</c:when>
-												<c:otherwise>
-													<a class="page-nav-button" href="list.do?bIdx=${param.bIdx}&page=${i}&searchType=${param.searchType}&searchValue=${param.searchValue}">${i}</a>
-												</c:otherwise>
-											</c:choose>
-										</c:forEach>
-									</c:if>
-									<c:if test="${pu.getLastPage() > 5}">
-										<c:if test="${pu.getStartPage() > 5}">
-											<a class="page-nav-button" href="list.do?bIdx=2&page=1&searchType=${param.searchType}&searchValue=${param.searchValue}">1</a>&nbsp;
-											<a class="page-nav-button" href="list.do?bIdx=2&page=${pu.getStartPage() - 1}&searchType=${param.searchType}&searchValue=${param.searchValue}">◀</a>&nbsp;
-										</c:if>
-										<c:forEach var="i" begin="${pu.getStartPage()}" end="${pu.getEndPage()}">
-											<c:choose>
-												<c:when test="${i == param.page}">
-													<b class="page-nav-button current-page">${i}</b>
-												</c:when>
-												<c:otherwise>
-													<a class="page-nav-button" href="list.do?bIdx=${param.bIdx}&page=${i}&searchType=${param.searchType}&searchValue=${param.searchValue}">${i}</a>
-												</c:otherwise>
-											</c:choose>
-										</c:forEach>
-										<c:if test="${pu.getEndPage() < pu.getLastPage()}">
-											<a class="page-nav-button" href="list.do?bIdx=${param.bIdx}&page=${pu.getEndPage() + 1}&searchType=${param.searchType}&searchValue=${param.searchValue}">▶</a>
-											<a class="page-nav-button" href="list.do?bIdx=${param.bIdx}&page=${pu.getLastPage()}&searchType=${param.searchType}&searchValue=${param.searchValue}">${pu.getLastPage()}</a>
-										</c:if>
-									</c:if>
-								</div>
-							</td>
-						</tr>
 				</c:if>
 				<c:if test="${list.size() == 0 }">
 					<tr>
@@ -232,7 +188,40 @@
 			</table>
 		</div>
 		
-
+		<div id="page-nav"><!-- 페이징 -->
+		<c:if test="${pu.getLastPage() < 6}">
+			<c:forEach var="i" begin="${pu.getStartPage()}" end="${pu.getLastPage()}">
+				<c:choose>
+					<c:when test="${i == param.page}">
+						<b class="page-nav-button current-page">${i}</b>
+					</c:when>
+					<c:otherwise>
+						<a class="page-nav-button" href="list.do?bIdx=${param.bIdx}&page=${i}&searchType=${param.searchType}&searchValue=${param.searchValue}">${i}</a>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</c:if>
+		<c:if test="${pu.getLastPage() > 5}">
+			<c:if test="${pu.getStartPage() > 5}">
+				<a class="page-nav-button" href="list.do?bIdx=2&page=1&searchType=${param.searchType}&searchValue=${param.searchValue}">1</a>&nbsp;
+				<a class="page-nav-button" href="list.do?bIdx=2&page=${pu.getStartPage() - 1}&searchType=${param.searchType}&searchValue=${param.searchValue}">◀</a>&nbsp;
+			</c:if>
+			<c:forEach var="i" begin="${pu.getStartPage()}" end="${pu.getEndPage()}">
+				<c:choose>
+					<c:when test="${i == param.page}">
+						<b class="page-nav-button current-page">${i}</b>
+					</c:when>
+					<c:otherwise>
+						<a class="page-nav-button" href="list.do?bIdx=${param.bIdx}&page=${i}&searchType=${param.searchType}&searchValue=${param.searchValue}">${i}</a>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			<c:if test="${pu.getEndPage() < pu.getLastPage()}">
+				<a class="page-nav-button" href="list.do?bIdx=${param.bIdx}&page=${pu.getEndPage() + 1}&searchType=${param.searchType}&searchValue=${param.searchValue}">▶</a>
+				<a class="page-nav-button" href="list.do?bIdx=${param.bIdx}&page=${pu.getLastPage()}&searchType=${param.searchType}&searchValue=${param.searchValue}">${pu.getLastPage()}</a>
+			</c:if>
+		</c:if>
+	</div>
 		<c:if test="${login != null}">
 			<form action="register.do" method="get">
 			<input type="hidden" name="page" value="${param.page}">
