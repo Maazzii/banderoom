@@ -399,7 +399,7 @@
 						htmls+='</div>'
 						htmls+='</div>'
 						htmls+='<div class="comment-area-content-contentarea">'
-						if(el.status == 0){
+						if(el.status != 1){
 						htmls+='<div style="resize: none;border:none;width:100%;word-break:break-all;" readonly >'+el.content+'<br>'							
 						if(el.picSrc != null){
 						htmls+='<img src="'+el.picSrc+'" style="width:200px; height:100%; border:2px solid lightgray;margin-top:10px;margin-bottom:10px"/>'	
@@ -411,7 +411,7 @@
 						htmls+='</div>'
 						htmls+='<div class="comment-area-content-bottomarea">'
 						htmls+='<a onclick="commentReply('+el.cIdx+')">답글</a>';
-						if(el.mIdx == mIdx){
+						if(el.mIdx == mIdx || el.status == 3){
 							if(el.status != 1){
 						htmls+='<a onclick="commentModify('+el.cIdx+')"> 수정 </a>';															
 						htmls+='<a onclick="commentDelete('+el.cIdx+')"> 삭제 </a>';							
@@ -453,7 +453,7 @@
 								htmls+='</div>'
 								htmls+='</div>'
 								htmls+='<div class="comment-area-content-bottomarea">'
-									if(rl.mIdx == mIdx){										
+									if(rl.mIdx == mIdx || rl.status == 3){										
 										htmls+='<a onclick="replyModify('+rl.rIdx+')"> 수정 </a>'						
 										htmls+='<a onclick="replyDelete('+rl.rIdx+','+list[2]+','+rl.mIdx+')"> 삭제 </a>'						
 									}
@@ -701,7 +701,7 @@
 				if(result==1){
 					alert('삭제되었습니다.')
 				}else if(result == 2){
-					alert('수정할수 없습니다.')
+					alert('삭제할수 없습니다.')
 				}else{
 					alert('작성자가 아닙니다');
 				}
@@ -1023,7 +1023,7 @@
 									<div class="comment-area-content-bottomarea">
 										<c:if test="${item.status != 1}">
 							 				<a onclick="commentReply('${item.cIdx}')">답글</a>
-										<c:if test="${item.mIdx == login.mIdx}">
+										<c:if test="${item.mIdx == login.mIdx || login.auth == 3}">
 							 				<a onclick="commentModify('${item.cIdx}')">수정</a>							 				
 							 				<a onclick="commentDelete('${item.cIdx}')">삭제</a>							 				
 								 		</c:if>
@@ -1062,7 +1062,7 @@
 										</div>
 									</div>
 									<div class="comment-area-content-bottomarea">
-										<c:if test="${rList.mIdx == login.mIdx}">
+										<c:if test="${rList.mIdx == login.mIdx || login.auth == 3}">
 							 				<a onclick="replyModify('${rList.rIdx}','${page}','${rList.mIdx}')">수정</a>							 				
 							 				<a onclick="replyDelete('${rList.rIdx}','${page}','${rList.mIdx}')">삭제</a>							 				
 								 		</c:if>
