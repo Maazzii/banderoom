@@ -344,4 +344,13 @@ public class HomeController {
 		return "/upload/" + newFileName;
 	}
 		
+	
+	//신고
+	@RequestMapping(value="/reportPopup.do")
+	public String reportPopup() {
+		
+		return "reportPopup";
+	}
+	//신고
+
 }
