@@ -230,25 +230,17 @@
 		cursor:pointer;
 	}
 	html body .imgExtend{
-		width:100%;
 		z-index:10000;
-		display:flex;
-		justify-content:center;
+		width:100%;
+		height:100vh;
+		display:block;
 		margin:auto;
 		top:0;
 		left:0;
 		position:fixed;
-		height:100%;
-	}
-	.IED > img{
-		max-width:100%;
-		height:600px;
 	}
 	.IED{
-		padding-top:50px;
-		padding-bottom:50px;
 		display:none;
-		background: rgba(248,247,216,0.7);
 	}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/moment@2.29.3/moment.min.js"></script>
@@ -393,13 +385,11 @@
 						htmls+='<div class="comment-area-content">'
 						htmls+='<div class="comment-area-content-toparea">'
 						htmls+='<div class="comment-area-content-toparea-left">'
-						if(el.status != 1){							
 						htmls+='<a class="miniprofile" onclick="profileOpen('+el.mIdx+')"><img src="'+el.mProfileSrc+'" class="psrc"/>'
 						if('${vo.mNickname}' == el.mNickname){
 						htmls+='<span style="font-weight:600;color:blue;">'+el.mNickname+ "  "+'</span></a>'														
 						} else{
 						htmls+='<span style="font-weight:600">'+el.mNickname+ "  "+'</span></a>'							
-						}
 						}
 						htmls+='</div>'
 						htmls+='<div class="comment-area-content-toparea-right">'
@@ -996,13 +986,10 @@
 						<c:set var="lastNum" value="${fn:substringBefore(Math.ceil(cmtTotal/10),'.')}"/>
 						<c:if test="${fn:length(cmtList) gt 0}">
 							<c:forEach var="item" items="${cmtList}" varStatus="st">
-							<c:set var="key" value="${item.cIdx}"/>
-							<c:if test="${fn:length(replyList[key]) gt 0 || item.status ne 1}">
 							<li class="comment-area-ul-li">
 								<div class="comment-area-content">
 									<div class="comment-area-content-toparea">
 							 			<div class="comment-area-content-toparea-left">
-							 				<c:if test="${item.status ne 1}">
 							 				<a class="miniprofile" onclick="profileOpen('${item.mIdx}')"><img src="${item.mProfileSrc}" style="width:25px; height:100%; margin-right:10px;" class="psrc"/>
 							 				<c:choose>
 							 				<c:when test="${vo.mNickname eq item.mNickname }">
@@ -1013,7 +1000,6 @@
 							 				</c:otherwise>
 							 				</c:choose>
 							 				</a>
-							 				</c:if>
 							 			</div>
 										<div class="comment-area-content-toparea-right">
 							 				<a class="reg-date"><fmt:formatDate value="${item.regDate}" pattern="YY-MM-dd HH:mm:ss"/></a>
@@ -1035,15 +1021,16 @@
 										</c:choose>
 									</div>
 									<div class="comment-area-content-bottomarea">
+										<c:if test="${item.status != 1}">
 							 				<a onclick="commentReply('${item.cIdx}')">답글</a>
-										<c:if test="${item.mIdx == login.mIdx && item.status != 1}">
+										<c:if test="${item.mIdx == login.mIdx}">
 							 				<a onclick="commentModify('${item.cIdx}')">수정</a>							 				
 							 				<a onclick="commentDelete('${item.cIdx}')">삭제</a>							 				
+								 		</c:if>
 								 		</c:if>
 									</div>
 								</div>
 							 </li>
-							 </c:if>
 							 <c:set var="key" value="${item.cIdx}"/>
 							 <c:if test="${fn:length(replyList[key]) gt 0}">
 							 <c:forEach items="${replyList[key]}" varStatus="j" var="rList">
@@ -1239,7 +1226,7 @@
 		</div>
 	</div>
 	<div id="IExtend" class="IED">
-		<img src="">
+		<img src="" style="width:100%;height:100%">
 	</div>
 	<script>
 	//이미지 확대해서보기
@@ -1248,6 +1235,7 @@
 		var img=document.querySelectorAll('.comment-area-content-contentarea div>img');
 		for(var i=0;i<img.length; i++){
 			img[i].addEventListener("click",function(){
+				console.log(this.src);
 				$('#IExtend>img').attr('src',this.src);
 				var imgDIV=document.querySelector('#IExtend');
 				imgDIV.classList.toggle("imgExtend");
